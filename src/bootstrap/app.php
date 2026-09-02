@@ -69,7 +69,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return ApiResponse::error(
                     message: "An unexpected error occurred.",
                     code: 500,
-                    errors: [$e->getMessage()];
+                    errors: [$e->getMessage()]
                 );
             }
         });
