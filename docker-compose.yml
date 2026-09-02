@@ -1,0 +1,72 @@
+services:
+  # Servidor PHP 8.4 + Composer
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api_laravel
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - laravel_network
+
+  # Servidor Web Nginx
+  web:
+    image: nginx:alpine
+    container_name: api_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/vhost.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - laravel_network
+
+  # Front-end estático para testes com a API
+  frontend-teste:
+    image: nginx:alpine
+    container_name: api_frontend_teste
+    ports:
+      - "8080:80"  # Rodará na porta 8080 da sua máquina física
+    volumes:
+      - ./frontend:/usr/share/nginx/html  # Mapeia sua pasta local para a pasta padrão do Nginx
+    networks:
+      - laravel_network
+
+
+    # Banco de Dados MySQL
+  db:
+    image: mysql:8.0
+    container_name: api_mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Define a senha do root global
+      MYSQL_DATABASE: laravel     # Cria o banco automaticamente
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel_network
+
+
+  # Node.js para compilar Assets (Vite)
+  node:
+    image: node:22
+    container_name: api_node
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - laravel_network
+
+networks:
+  laravel_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
