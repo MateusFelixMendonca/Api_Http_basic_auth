@@ -2,9 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\MainController;
+use App\Http\Middleware\WithBasicAuth;
 use App\Services\ApiResponse;
 
 Route::get('/status', [MainController::class, 'status']);
+
+Route::middleware(WithBasicAuth::class)->group(function(){
 
 Route::get('/categories', [MainController::class, 'listCategories']);
 Route::get('/products', [MainController::class, 'listProducts']);
@@ -28,6 +31,11 @@ Route::put('/movements/{id}/update', [MainController::class, 'updateMovement']);
 Route::delete('/movements/{id}/delete', [MainController::class, 'deleteMovement']);
 Route::delete('/products/{id}/delete', [MainController::class, 'deleteProduct']);
 Route::delete('/categories/{id}/delete', [MainController::class, 'deleteCategory']);
+
+
+});
+
+
 
 
 // Route::get('/error-example', function(){
